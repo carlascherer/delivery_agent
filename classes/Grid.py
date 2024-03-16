@@ -6,7 +6,8 @@ import matplotlib.patches as mpatches
 import time
 
 class Grid:
-    def __init__(self, size=15, num_obstacles=7, num_deliveries=5, delivery_reward=10, obstacle_penalty=-5, step_penalty=-1, deliveries_made=0):#min_distance=3
+    # def __init__(self, size=15, num_obstacles=7, num_deliveries=5, delivery_reward=10, obstacle_penalty=-5, step_penalty=-1, deliveries_made=0):#min_distance=3
+    def __init__(self, size=5, num_obstacles=3, num_deliveries=1, delivery_reward=10, obstacle_penalty=-5, step_penalty=-1, deliveries_made=0):#min_distance=3
         self.size = size
         self.grid = np.zeros((size, size), dtype=int)
         self.num_obstacles = num_obstacles
@@ -19,6 +20,11 @@ class Grid:
         self.step_penalty = step_penalty # penalty for every step
         self.deliveries_made = deliveries_made # counter of the number of deliveries made
         self.max_steps = self.size * 10 # max number of steps in each episode
+
+        # 0: empty space
+        # 1: obstacle
+        # 2: delivery point
+        # 3: agent location
 
     def place_objects(self, count, object_type):
         placed = 0
@@ -35,50 +41,34 @@ class Grid:
                 self.agent_position = (x, y)
                 break
 
-    # 0: empty space
-    # 1: obstacle
-    # 2: delivery point
-    # 3: agent location
 
-            
-    # def display(self):
-    #     temp_grid = np.array(self.grid)
-    #     temp_grid[self.agent_position] = 3
-    #     print(temp_grid)
-
-
-    def display(temp_grid, wait=0.1, grid_search_mode=True):
+    def display(self, temp_grid):
         # logic to visualize the grid and agent position
-        if grid_search_mode == False:
-            clear_output(wait=True)
-            plt.figure(figsize=(5, 5))
-            title = 'Reinforcement Learning - Delivery Agent'
-            plt.title(title, fontdict={'fontsize': 13, 'fontweight': 'bold'})
-            plt.imshow(temp_grid, cmap='magma', interpolation='nearest')
+        clear_output(wait=True)
+        plt.figure(figsize=(5, 5))
+        title = 'Reinforcement Learning - Delivery Agent'
+        plt.title(title, fontdict={'fontsize': 13, 'fontweight': 'bold'})
+        plt.imshow(temp_grid, cmap='magma', interpolation='nearest')
 
-            # annotate obstacles, delivery points and agent position
-            for y in range(temp_grid.shape[0]):
-                for x in range(temp_grid.shape[1]):
-                    text = ''
-                    color = 'white'
-                    if temp_grid[y, x] == 1:
-                        text = 'Obstacle'
-                    elif temp_grid[y, x] == 2:
-                        text = 'Delivery Point'
-                    elif temp_grid[y, x] == 3:
-                        text = 'Agent Location'
-                        color = 'black'
-                    if text:
-                        plt.text(x, y, text, ha='center', va='center', color=color, fontsize=6)
+        # annotate obstacles, delivery points and agent position
+        for y in range(temp_grid.shape[0]):
+            for x in range(temp_grid.shape[1]):
+                text = ''
+                color = 'white'
+                if temp_grid[y, x] == 1:
+                    text = 'Obstacle'
+                elif temp_grid[y, x] == 2:
+                    text = 'Delivery Point'
+                elif temp_grid[y, x] == 3:
+                    text = 'Agent Location'
+                    color = 'black'
+                if text:
+                    plt.text(x, y, text, ha='center', va='center', color=color, fontsize=6)
 
-            plt.axis('off')
-            legend = [mpatches.Patch(color='red', label='Obstacle'),
-                    mpatches.Patch(color='yellow', label='Delivery Point'),
-                    mpatches.Patch(color='green', label='Agent Location')]
-            plt.legend(handles=legend, bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.axis('off')
 
-            plt.show()
-            time.sleep(wait)
+        plt.show()
+        time.sleep(0.5)
 
 
     def step(self, action):
@@ -104,7 +94,7 @@ class Grid:
                 self.agent_position = new_position  # move agent
         else:
             # if new position is out of grid limits, penalize and dont move
-            reward = self.obstacle_penalty
+            reward = self.step_penalty
             done = False
 
         # verify if max steps number was reached
@@ -125,7 +115,7 @@ class Grid:
         # 1: right
         # 2: down
         # 3: up
-        
+
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         move = directions[action]
         return (self.agent_position[0] + move[0], self.agent_position[1] + move[1])

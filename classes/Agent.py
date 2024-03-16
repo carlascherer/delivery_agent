@@ -6,7 +6,7 @@ class Agent:
     def __init__(self, environment, epsilon=0.1, learning_rate = 0.1, discount_factor=0.6, min_epsilon=0.01, decay_rate=0.995):
         self.env = environment
         # self.q_table = np.zeros((environment.size, environment.size, 4))  # inicialize Q-Table
-        self.q_table = np.full((environment.size, environment.size, 4), 0.1)
+        self.q_table = np.zeros((environment.size, environment.size, 4))
         self.epsilon = epsilon # inicialized with 1 and then tested with lower values
         self.min_epsilon = min_epsilon
         self.decay_rate = decay_rate
@@ -44,8 +44,8 @@ class Agent:
                 self.update_q_table(state, action, reward, new_state)
 
                 # visualize the agent location
-                temp_grid = np.copy(self.env.grid)
-                self.env.display(temp_grid, wait=0.5)
+                # temp_grid = np.copy(self.env.grid)
+                # self.env.display(temp_grid, wait=0.5)
 
                 state = new_state
                 # accumulate rewards
@@ -58,6 +58,7 @@ class Agent:
 
             # reduce epsilon (exploration rate)
             self.epsilon = max(self.min_epsilon, self.epsilon * np.exp(-self.decay_rate * episode))
+            # self.epsilon = max(self.min_epsilon, self.epsilon * self.decay_rate)
 
         # visualize the evolution of the agent performance
         if not grid_search_mode:
